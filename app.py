@@ -62,7 +62,7 @@ if prompt := st.chat_input("Yahan apna sawal ya image ka idea likhein..."):
         with st.spinner("ZX AI soch raha hai..."):
             try:
                 response = client.models.generate_content(
-                    model='gemini-3.8-flash',
+                    model='gemini-1.5-flash',
                     contents=f"You are ZX AI Assistant, created for Zahed. Be very helpful, professional, and smart. User input: {prompt}"
                 )
                 ai_response = response.text
