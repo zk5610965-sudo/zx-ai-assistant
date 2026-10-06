@@ -1,13 +1,40 @@
 import streamlit as st
 from google import genai
-from google.genai import types
 
-st.set_page_config(page_title="ZX AI Assistant", page_icon="🤖")
+# Page Configuration for Professional Look
+st.set_page_config(
+    page_title="ZX Studio - AI Assistant",
+    page_icon="⚡",
+    layout="centered",
+    initial_sidebar_state="expanded"
+)
 
-st.title("🤖 ZX AI Assistant")
-st.write("Padhai, Business, ya koi bhi sawal ho—yeh sab sambhal lega!")
+# Custom Styling for Professional UI
+st.markdown("""
+    <style>
+    .stChatInput input {
+        border-radius: 20px !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
-# API Key configuration from Streamlit secrets
+# Sidebar Design
+with st.sidebar:
+    st.title("⚡ ZX Studio AI")
+    st.markdown("---")
+    st.markdown("**App Features:**")
+    st.markdown("💬 Smart Chat & Coding")
+    st.markdown("🎨 AI Image Prompts & Ideas")
+    st.markdown("📈 Business & Studies Help")
+    st.markdown("---")
+    st.success("Status: Online & Active")
+    st.caption("Powered by Google Gemini")
+
+# Main Header
+st.title("⚡ ZX Professional AI Assistant")
+st.write("Aapka apna smart assistant jo padhai, business aur creative ideas me madad karega!")
+
+# API Key configuration
 if "GEMINI_API_KEY" in st.secrets:
     api_key = st.secrets["GEMINI_API_KEY"]
 else:
@@ -19,25 +46,24 @@ client = genai.Client(api_key=api_key)
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Display chat messages from history on app rerun
+# Display chat messages from history
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# Accept user input
-if prompt := st.chat_input("Yahan apna sawal likhein..."):
+# User Input
+if prompt := st.chat_input("Yahan apna sawal ya image ka idea likhein..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
 
     # Generate AI response
     with st.chat_message("assistant"):
-        with st.spinner("Soch raha hoon..."):
+        with st.spinner("ZX AI soch raha hai..."):
             try:
-                # Using gemini-3.8-flash model
                 response = client.models.generate_content(
                     model='gemini-3.8-flash',
-                    contents=prompt,
+                    contents=f"You are ZX AI Assistant, created for Zahed. Be very helpful, professional, and smart. User input: {prompt}"
                 )
                 ai_response = response.text
                 st.markdown(ai_response)
