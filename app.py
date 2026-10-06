@@ -1,40 +1,17 @@
 import streamlit as st
 from google import genai
+import time
 
-# Page Configuration for Professional Look
 st.set_page_config(
-    page_title="ZX Studio - AI Assistant",
+    page_title="ZX Studio AI",
     page_icon="⚡",
-    layout="centered",
-    initial_sidebar_state="expanded"
+    layout="centered"
 )
 
-# Custom Styling for Professional UI
-st.markdown("""
-    <style>
-    .stChatInput input {
-        border-radius: 20px !important;
-    }
-    </style>
-""", unsafe_allow_html=True)
-
-# Sidebar Design
-with st.sidebar:
-    st.title("⚡ ZX Studio AI")
-    st.markdown("---")
-    st.markdown("**App Features:**")
-    st.markdown("💬 Smart Chat & Coding")
-    st.markdown("🎨 AI Image Prompts & Ideas")
-    st.markdown("📈 Business & Studies Help")
-    st.markdown("---")
-    st.success("Status: Online & Active")
-    st.caption("Powered by Google Gemini")
-
-# Main Header
 st.title("⚡ ZX Professional AI Assistant")
-st.write("Aapka apna smart assistant jo padhai, business aur creative ideas me madad karega!")
+st.write("Aapka apna smart assistant — Padhai, Business aur Coding ke liye!")
 
-# API Key configuration
+# API Key check
 if "GEMINI_API_KEY" in st.secrets:
     api_key = st.secrets["GEMINI_API_KEY"]
 else:
@@ -42,31 +19,39 @@ else:
 
 client = genai.Client(api_key=api_key)
 
-# Initialize chat history
+# Chat history initialization
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Display chat messages from history
+# Display previous messages
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# User Input
-if prompt := st.chat_input("Yahan apna sawal ya image ka idea likhein..."):
+# User input
+if prompt := st.chat_input("Yahan apna sawal likhein..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    # Generate AI response
+    # Generate response with retry logic for errors
     with st.chat_message("assistant"):
         with st.spinner("ZX AI soch raha hai..."):
-            try:
-                response = client.models.generate_content(
-                    model='gemini-3.8-flash',
-                    contents=f"You are ZX AI Assistant, created for Zahed. Be very helpful, professional, and smart. User input: {prompt}"
-                )
-                ai_response = response.text
-                st.markdown(ai_response)
-                st.session_state.messages.append({"role": "assistant", "content": ai_response})
-            except Exception as e:
-                st.error(f"Kuch error aa gaya: {e}")
+            success = False
+            attempts = 3
+            for i in range(attempts):
+                try:
+                    response = client.models.generate_content(
+                        model='gemini-3.8-flash',
+                        contents=f"You are ZX AI Assistant, created for Zahed. Help him accurately and fast. User: {prompt}"
+                    )
+                    ai_response = response.text
+                    st.markdown(ai_response)
+                    st.session_state.messages.append({"role": "assistant", "content": ai_response})
+                    success = True
+                    break
+                except Exception as e:
+                    if i < attempts - 1:
+                        time.sleep(2) # 2 second wait karke dobara koshish karega
+                    else:
+                        st.error(f"Server busy hai, thodi der baad try karein. (Error: {e})")
